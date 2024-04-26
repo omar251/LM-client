@@ -3,31 +3,28 @@ from ollama import Client
 
 client = Client(host='http://localhost:11434')
 
-text = ""
-user_input = "hello"
 model = ollama.list()['models'][0]['name']
 print(model)
-messages = [{'role': 'system', 'content': 'You are an AI assistant who gives a quality response to whatever humans ask of you.'}]
+history = [
+    {"role": "system", "content": "You are an intelligent assistant. You always provide well-reasoned answers that are both correct and helpful."},
+    {"role": "user", "content": "Hello, introduce yourself to someone opening this program for the first time. Be concise."},
+]
 
-reply = client.chat(model=model, messages=messages,stream=True)
-for chunk in reply:
-    print(chunk['message']['content'], end='', flush=True)
-    text += chunk['message']['content']
-messages.append({'role': 'assistant', 'content': text})
-print('\n')
-
-while user_input != "bye":
+while True:
     try:
-        user_input = input("Prompt: ")      
+        reply = client.chat(model=model, messages=history,stream=True)
+        new_message = {"role": "assistant", "content": ""}
         
-        messages.append({'role': 'user', 'content': user_input})
-        
-        reply = client.chat(model=model, messages=messages,stream=True)
         for chunk in reply:
             print(chunk['message']['content'], end='', flush=True)
-            text += chunk['message']['content']       
-        messages.append({'role': 'assistant', 'content': text})
-        print('\n')
+            new_message["content"] += chunk['message']['content']
+             
+        history.append(new_message)    
+        print()
+        user_input = input("> ")
+        if user_input == "exit":
+            break
+        history.append({"role": "user", "content": user_input})
         
     except Exception as e:
         print(f"An error occurred: {e}")
