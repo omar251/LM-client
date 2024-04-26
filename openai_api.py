@@ -1,8 +1,32 @@
+import requests
 from openai import OpenAI
-ollama_url = "http://localhost:11434/v1"
-lmstudio_url = "http://localhost:1234/v1"
+import ollama
+
+urls = ["http://localhost:1234","http://localhost:11434"]
+
+def check_url_status(url):
+    try:
+        response = requests.head(url, timeout=5)
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except requests.ConnectionError:
+        return False
+
+for url in urls:
+    if check_url_status(url):
+        print(f"Connected to {url}")
+        break
+url += "/v1"
+model = "gpt-3.5-turbo"
+try:
+    model = ollama.list()['models'][0]['name']
+except Exception as e:
+        print(f"An error occurred: {e}")
+        
 # Point to the local server
-client = OpenAI(base_url=ollama_url, api_key="local_key")
+client = OpenAI(base_url=url, api_key="local_key")
 
 history = [
     {"role": "system", "content": "You are an intelligent assistant. You always provide well-reasoned answers that are both correct and helpful."},
@@ -11,7 +35,7 @@ history = [
 
 while True:
     completion = client.chat.completions.create(
-        model="Mistral_7b",
+        model=model,
         messages=history,
         temperature=0.7,
         stream=True,
