@@ -14,10 +14,16 @@ def check_url_status(url):
     except requests.ConnectionError:
         return False
 
+server_count = 0
 for url in urls:
     if check_url_status(url):
+        server_count += 1
         print(f"Connected to {url}")
         break
+if server_count == 0:
+    print("Could not connect to any server. Exiting...")
+    exit(1)
+    
 url += "/v1"
 model = "gpt-3.5-turbo"
 try:
