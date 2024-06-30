@@ -62,7 +62,7 @@ class GetModels:
             except ValueError:
                 print("Invalid selection. Please enter a valid model number.")
 
-folder_path = r"C:\Users\pc\Documents\MyData\LLM_models\models\TheBloke"
+folder_path = r"C:\Users\pc\Documents\MyData\LLM_models\models"
 get_models = GetModels(folder_path)
 model_name, model_path, model_size = get_models.select_model()
 print(f"Model Name: {model_name}")
@@ -94,8 +94,10 @@ PARAMETER stop "<|im_end|>"
 yn = input("Do you want to create a new model? (y/n)")
 if yn == 'y':
     create(model_name,model_path)
-
-models = ollama.list()
-for model in models['models']:
-    print('- ',model['name'])
-    model = model['name']
+try:
+    models = ollama.list()
+    for model in models['models']:
+        print('- ',model['name'])
+        model = model['name']
+except Exception as e:
+    print(e)
